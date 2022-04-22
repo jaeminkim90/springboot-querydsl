@@ -29,7 +29,9 @@ class QuerydslApplicationTests {
 		em.persist(hello); // 엔티티 영속성 컨텍스트 저장
 
 		JPAQueryFactory query = new JPAQueryFactory(em); // JPAQueryFactory 사용 권장
-		QHello qHello = new QHello("h");
+		//QHello qHello = new QHello("h");
+		QHello qHello = QHello.hello; // QHello에 자동으로 생성된 객체를 사용할 수 있다
+
 
 		// QueryDSL 사용 예시
 		// 쿼리와 관련된 것은 모두 Q타입을 사용한다.
