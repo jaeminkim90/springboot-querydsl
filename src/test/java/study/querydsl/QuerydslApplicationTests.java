@@ -1,5 +1,7 @@
 package study.querydsl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import javax.persistence.Entity;
@@ -35,7 +37,10 @@ class QuerydslApplicationTests {
 			.selectFrom(qHello)
 			.fetchOne();
 
-		// 검증
-		Assertions.assertThat(result).isEqualTo(hello);
+		// 엔티티 동일성 검증
+		assertThat(result).isEqualTo(hello);
+
+		// lombok 테스트
+		assertThat(result.getId()).isEqualTo(hello.getId());
 	}
 }
