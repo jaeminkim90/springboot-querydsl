@@ -21,8 +21,13 @@ public class QuerydslBasicTest {
 	@Autowired
 	EntityManager em;
 
+	// Querydsl에서 사용하는 QueryFactory는 필드 변수로 빼줄 수 있다
+	// 초기화는 before()에서 진행한다
+	JPAQueryFactory queryFactory; // querydsl은 QueryFactory로 시작한다
+
 	@BeforeEach // 각 테스트 실행 전에 데이터를 넣기 위해 사용
 	public void before() {
+		queryFactory = new JPAQueryFactory(em); // QueryFactory 초기화
 		Team teamA = new Team("TeamA");
 		Team teamB = new Team("TeamB");
 		em.persist(teamA);
@@ -58,7 +63,6 @@ public class QuerydslBasicTest {
 	// JPQL과의 차이_2: 쿼리에 파라미터 값을 직접 넣어주지 않아도 자동으로 파라미터 바인딩을 해서 쿼리를 생성한다
 	@Test
 	public void startQuerydsl() {
-		JPAQueryFactory queryFactory = new JPAQueryFactory(em);// querydsl은 QueryFactory로 시작한다
 		QMember m = new QMember("m"); // m은 Qmember를 구분하는 별칭같은 거지만, 크게 중요하지 않다.
 		// QMember에 이미 만들어져 있는 member 객체를 사용한다
 
