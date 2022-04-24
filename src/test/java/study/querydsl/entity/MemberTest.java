@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-@Commit
+// @Commit // 롤백처리를 위해 주석 처리
 class MemberTest {
 
 	@PersistenceContext
