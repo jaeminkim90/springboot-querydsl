@@ -75,4 +75,18 @@ public class QuerydslBasicTest {
 		assertThat(findMember.getUsername()).isEqualTo("member1");
 	}
 
+	@Test
+	public void startQuerydsl2() {
+		QMember m = QMember.member; //
+		// QMember에 이미 만들어져 있는 member 객체를 사용한다
+
+		Member findMember = queryFactory
+			.select(m)
+			.from(m)
+			.where(m.username.eq("member1")) // 파라미터 바인딩을 하지 않고 eq을 사용한다. 자동으로 바인딩 된다.
+			.fetchOne(); //
+
+		assertThat(findMember.getUsername()).isEqualTo("member1");
+	}
+
 }
