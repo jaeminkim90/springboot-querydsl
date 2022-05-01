@@ -1,18 +1,13 @@
 package study.querydsl.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static study.querydsl.entity.QMember.member;
 
-import com.querydsl.core.types.QMap;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.List;
 import javax.persistence.EntityManager;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -86,6 +81,17 @@ public class QuerydslBasicTest {
 			.from(m1)
 			.where(m1.username.eq("member1")) // 파라미터 바인딩을 하지 않고 eq을 사용한다. 자동으로 바인딩 된다.
 			.fetchOne(); //
+
+		assertThat(findMember.getUsername()).isEqualTo("member1");
+	}
+
+	@Test
+	public void search() {
+		Member findMember = queryFactory
+			.selectFrom(QMember.member)
+			.where(QMember.member.username.eq("member1")
+				.and(QMember.member.age.eq(10)))
+			.fetchOne();
 
 		assertThat(findMember.getUsername()).isEqualTo("member1");
 	}
