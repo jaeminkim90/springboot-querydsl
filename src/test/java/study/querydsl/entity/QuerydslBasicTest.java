@@ -103,7 +103,7 @@ public class QuerydslBasicTest {
 			.where(
 				//member.username.eq("member1").and(member.age.eq(10))
 				member.username.eq("member1"),
-				(member.age.eq(10))
+				(member.age.eq(10)), null
 			)
 			.fetchOne();
 
