@@ -1,6 +1,7 @@
 package study.querydsl.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static study.querydsl.entity.QMember.member;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import javax.persistence.EntityManager;
@@ -45,9 +46,9 @@ public class QuerydslBasicTest {
 		// JPQL 방식으로 member1을 찾는다.
 		String qlString =
 			"select m from Member m " +
-			"where m.username = :username";
+				"where m.username = :username";
 
-		Member findMember = em.createQuery( qlString, Member.class)
+		Member findMember = em.createQuery(qlString, Member.class)
 			.setParameter("username", "member1")
 			.getSingleResult();
 
@@ -88,9 +89,22 @@ public class QuerydslBasicTest {
 	@Test
 	public void search() {
 		Member findMember = queryFactory
-			.selectFrom(QMember.member)
-			.where(QMember.member.username.eq("member1")
-				.and(QMember.member.age.eq(10)))
+			.selectFrom(member)
+			.where(member.username.eq("member1").and(member.age.eq(10)))
+			.fetchOne();
+
+		assertThat(findMember.getUsername()).isEqualTo("member1");
+	}
+
+	@Test
+	public void searchAndParam() {
+		Member findMember = queryFactory
+			.selectFrom(member)
+			.where(
+				//member.username.eq("member1").and(member.age.eq(10))
+				member.username.eq("member1"),
+				(member.age.eq(10))
+			)
 			.fetchOne();
 
 		assertThat(findMember.getUsername()).isEqualTo("member1");
