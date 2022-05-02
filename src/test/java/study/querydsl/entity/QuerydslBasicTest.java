@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,6 +110,20 @@ public class QuerydslBasicTest {
 
 		assertThat(findMember.getUsername()).isEqualTo("member1");
 	}
+
+	@Test
+	public void resultFetch() {
+		List<Member> fetch = queryFactory
+			.selectFrom(member)
+			.fetch(); // List를 조회, 조회 결과 없을 경우 빈 리스트 반환
+
+		for (Member fetchResult : fetch) {
+
+			System.out.println("fetchResult = " + fetchResult);
+		}
+
+	}
+
 
 	/**
 	 * fetch() : 리스트 조회, 데이터 없으면 빈 리스트 반환
