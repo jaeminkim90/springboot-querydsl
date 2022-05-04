@@ -117,11 +117,10 @@ public class QuerydslBasicTest {
 			.selectFrom(member)
 			.fetch(); // List를 조회, 조회 결과 없을 경우 빈 리스트 반환
 
-		for (Member fetchResult : fetch) {
-
-			System.out.println("fetchResult = " + fetchResult);
-		}
-
+		Member fetchOne = queryFactory
+			.selectFrom(QMember.member)
+			.fetchOne(); // 단건을 조회할 때 사용
+	}
 	}
 
 
