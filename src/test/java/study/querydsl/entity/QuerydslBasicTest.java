@@ -120,8 +120,13 @@ public class QuerydslBasicTest {
 		Member fetchOne = queryFactory
 			.selectFrom(QMember.member)
 			.fetchOne(); // 단건을 조회할 때 사용
+
+		queryFactory
+			.selectFrom(member)
+			//.limit(1).fetchOne();
+			.fetchFirst(); // fetchFirst와 FetchOne은 동일한 기능이다
 	}
-	}
+}
 
 
 	/**
