@@ -3,6 +3,7 @@ package study.querydsl.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -125,7 +126,20 @@ public class QuerydslBasicTest {
 			.selectFrom(member)
 			//.limit(1).fetchOne();
 			.fetchFirst(); // fetchFirst와 FetchOne은 동일한 기능이다
+
+		QueryResults<Member> results = queryFactory
+			.selectFrom(member)
+			.fetchResults();
+
+		// fetchResults()는 getTotal()을 제공한다. 쿼리가 2번 실행된다. select count 쿼리를 한 번 더 날린다.
+		results.getTotal();
+		// fetchResults()로 조회된 실제 데이터를 꺼내올 때는 getResults()를 사용한다.
+		List<Member> content = results.getResults();
+		// 그 외에 페이징에 사용할 수 있는getLimit()와 getOffset()도 사용이 가능하다.
+
 	}
+
+
 }
 
 
