@@ -139,11 +139,7 @@ public class QuerydslBasicTest {
 
 		queryFactory
 			.selectFrom(member)
-			.fetchCount(); // count만 가져오는 쿼리
-	}
-}
-
-
+			.fetchCount(); // count만 가져오는 쿼리. select 조건을 지우고 count 쿼리가 나간다
 	/**
 	 * fetch() : 리스트 조회, 데이터 없으면 빈 리스트 반환
 	 * fetchOne() : 단 건 조회
@@ -175,5 +171,38 @@ public class QuerydslBasicTest {
 	 * 	    member.username.contains("member") // like ‘%member%’ 검색
 	 * 	    member.username.startsWith("member") //like ‘member%’ 검색
 	 */
+	}
+
+	/**
+	 * 회원 정렬 순서
+	 * 1. 회원 나이 내림차순(desc)
+	 * 2. 회원 이름 올림차순(asc)
+	 * 단, 2에서 회원 이름이 없으면 마지막에 출력(null is last)
+	 */
+	@Test
+	public void sort() {
+		em.persist(new Member(null, 100));
+		em.persist(new Member("member5", 100));
+		em.persist(new Member("member6", 100));
+
+		List<Member> result = queryFactory
+			.selectFrom(member)
+			.where(member.age.eq(100))
+			.orderBy(member.age.desc(),
+				member.username.asc().nullsLast()) // 나이는 내림차순, 이름은 오름차순 정렬한다. null이 있을 경우 마지막에 넣는다
+			.fetch();// List를 뽑을 떄는 fetch를 사용한다
+
+		// 조회시 예상되는 객체 -> 나이 조건이 같음으로 이름을 기준으로 오름차순되는 것이 기본 조건이다.
+		// null이 있을 경우 last로 빠지기 때문에 아래와 같은 조건으로 객체가 조회될 것을 예상
+		Member member5 = result.get(0);
+		Member member6 = result.get(1);
+		Member memberNull = result.get(2);
+
+		// 검증
+		assertThat(member5.getUsername()).isEqualTo("member5");
+		assertThat(member6.getUsername()).isEqualTo("member6");
+		assertThat(memberNull.getUsername()).isNull();
+	}
+}
 
 
