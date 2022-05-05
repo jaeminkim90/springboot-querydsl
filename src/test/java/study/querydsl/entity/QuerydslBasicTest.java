@@ -118,9 +118,9 @@ public class QuerydslBasicTest {
 			.selectFrom(member)
 			.fetch(); // List를 조회, 조회 결과 없을 경우 빈 리스트 반환
 
-		Member fetchOne = queryFactory
-			.selectFrom(QMember.member)
-			.fetchOne(); // 단건을 조회할 때 사용
+//		Member fetchOne = queryFactory
+//			.selectFrom(QMember.member)
+//			.fetchOne(); // 단건을 조회할 때 사용
 
 		queryFactory
 			.selectFrom(member)
@@ -137,9 +137,10 @@ public class QuerydslBasicTest {
 		List<Member> content = results.getResults();
 		// 그 외에 페이징에 사용할 수 있는getLimit()와 getOffset()도 사용이 가능하다.
 
+		queryFactory
+			.selectFrom(member)
+			.fetchCount(); // count만 가져오는 쿼리
 	}
-
-
 }
 
 
@@ -175,4 +176,4 @@ public class QuerydslBasicTest {
 	 * 	    member.username.startsWith("member") //like ‘member%’ 검색
 	 */
 
-}
+
