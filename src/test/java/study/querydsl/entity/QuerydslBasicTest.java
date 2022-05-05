@@ -189,7 +189,8 @@ public class QuerydslBasicTest {
 			.selectFrom(member)
 			.where(member.age.eq(100))
 			.orderBy(member.age.desc(),
-				member.username.asc().nullsLast()) // 나이는 내림차순, 이름은 오름차순 정렬한다. null이 있을 경우 마지막에 넣는다
+				member.username.asc().nullsFirst()) // null을 가장 먼저 가져오는 null first 조건도 있다
+				//member.username.asc().nullsLast()) // 나이는 내림차순, 이름은 오름차순 정렬한다. null이 있을 경우 마지막에 넣는다
 			.fetch();// List를 뽑을 떄는 fetch를 사용한다
 
 		// 조회시 예상되는 객체 -> 나이 조건이 같음으로 이름을 기준으로 오름차순되는 것이 기본 조건이다.
