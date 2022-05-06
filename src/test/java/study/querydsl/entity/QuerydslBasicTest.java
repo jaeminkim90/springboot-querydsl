@@ -140,44 +140,41 @@ public class QuerydslBasicTest {
 		queryFactory
 			.selectFrom(member)
 			.fetchCount(); // count만 가져오는 쿼리. select 조건을 지우고 count 쿼리가 나간다
-	/**
-	 * fetch() : 리스트 조회, 데이터 없으면 빈 리스트 반환
-	 * fetchOne() : 단 건 조회
-	 * 		결과가 없으면 : null
-	 * 		결과가 둘 이상이면 : com.querydsl.core.NonUniqueResultException
-	 * fetchFirst() : limit(1).fetchOne()
-	 * fetchResults() : 페이징 정보 포함, total count 쿼리 추가 실행
-	 * fetchCount() : count 쿼리로 변경해서 count 수 조회
-	 */
+		/**
+		 * fetch() : 리스트 조회, 데이터 없으면 빈 리스트 반환
+		 * fetchOne() : 단 건 조회
+		 * 		결과가 없으면 : null
+		 * 		결과가 둘 이상이면 : com.querydsl.core.NonUniqueResultException
+		 * fetchFirst() : limit(1).fetchOne()
+		 * fetchResults() : 페이징 정보 포함, total count 쿼리 추가 실행
+		 * fetchCount() : count 쿼리로 변경해서 count 수 조회
+		 */
 
-	/**
-	 * JPQL이 제공하는 모든 검색 조건 제공
-	 *     member.username.eq("member1") // username = 'member1'
-	 *     member.username.ne("member1") //username != 'member1'
-	 *     member.username.eq("member1").not() // username != 'member1'
-	 *
-	 * 	   member.username.isNotNull() //이름이 is not null
-	 *
-	 *     member.age.in(10, 20) // age in (10,20)
-	 *     member.age.notIn(10, 20) // age not in (10, 20)
-	 *     member.age.between(10,30) //between 10, 30
-	 *
-	 *     member.age.goe(30) // age >= 30
-	 *     member.age.gt(30) // age > 30
-	 *     member.age.loe(30) // age <= 30
-	 *     member.age.lt(30) // age < 30
-	 *
-	 * 	    member.username.like("member%") //like 검색
-	 * 	    member.username.contains("member") // like ‘%member%’ 검색
-	 * 	    member.username.startsWith("member") //like ‘member%’ 검색
-	 */
+		/**
+		 * JPQL이 제공하는 모든 검색 조건 제공
+		 *     member.username.eq("member1") // username = 'member1'
+		 *     member.username.ne("member1") //username != 'member1'
+		 *     member.username.eq("member1").not() // username != 'member1'
+		 *
+		 * 	   member.username.isNotNull() //이름이 is not null
+		 *
+		 *     member.age.in(10, 20) // age in (10,20)
+		 *     member.age.notIn(10, 20) // age not in (10, 20)
+		 *     member.age.between(10,30) //between 10, 30
+		 *
+		 *     member.age.goe(30) // age >= 30
+		 *     member.age.gt(30) // age > 30
+		 *     member.age.loe(30) // age <= 30
+		 *     member.age.lt(30) // age < 30
+		 *
+		 * 	    member.username.like("member%") //like 검색
+		 * 	    member.username.contains("member") // like ‘%member%’ 검색
+		 * 	    member.username.startsWith("member") //like ‘member%’ 검색
+		 */
 	}
 
 	/**
-	 * 회원 정렬 순서
-	 * 1. 회원 나이 내림차순(desc)
-	 * 2. 회원 이름 올림차순(asc)
-	 * 단, 2에서 회원 이름이 없으면 마지막에 출력(null is last)
+	 * 회원 정렬 순서 1. 회원 나이 내림차순(desc) 2. 회원 이름 올림차순(asc) 단, 2에서 회원 이름이 없으면 마지막에 출력(null is last)
 	 */
 	@Test
 	public void sort() {
@@ -190,7 +187,7 @@ public class QuerydslBasicTest {
 			.where(member.age.eq(100))
 			.orderBy(member.age.desc(),
 				member.username.asc().nullsFirst()) // null을 가장 먼저 가져오는 null first 조건도 있다
-				//member.username.asc().nullsLast()) // 나이는 내림차순, 이름은 오름차순 정렬한다. null이 있을 경우 마지막에 넣는다
+			//member.username.asc().nullsLast()) // 나이는 내림차순, 이름은 오름차순 정렬한다. null이 있을 경우 마지막에 넣는다
 			.fetch();// List를 뽑을 떄는 fetch를 사용한다
 
 		// 조회시 예상되는 객체 -> 나이 조건이 같음으로 이름을 기준으로 오름차순되는 것이 기본 조건이다.
@@ -219,8 +216,22 @@ public class QuerydslBasicTest {
 		for (Member member1 : result) {
 			System.out.println("member1 = " + member1);
 		}
+	}
 
+	// paging. 전체 조회가 필요한 경우
+	@Test
+	public void paging2() {
+		// fetchResults()를 사용하면 쿼리가 2번 나간다. 카운트 쿼리가 먼저 나가고, 다음으로 content용 쿼리가 나간다.
+		QueryResults<Member> queryResults = queryFactory
+			.selectFrom(member)
+			.orderBy(member.username.desc())
+			.offset(1) // 시작하는 row를 설정(시작 페이지가 아니다)
+			.limit(2) // 한 화면에 보여줄 데이터의 갯수
+			.fetchResults();// 페이징 정보 포함, total count 쿼리 추가 실행 -> 결과가 QueryResult로 나온다
+
+		assertThat(queryResults.getTotal()).isEqualTo(4); // queryResult는 전체 데이터 갯수를 확인할 때 getTotal()을 사용한다.
+		assertThat(queryResults.getLimit()).isEqualTo(2);
+		assertThat(queryResults.getOffset()).isEqualTo(1);
+		assertThat(queryResults.getResults().size()).isEqualTo(2); // getResults를 사용하면 해당 페이지에 들어가는 데이터 content를 꺼낼 수 있다. size를 통해 갯수 확인 가능
 	}
 }
-
-
