@@ -2,6 +2,7 @@ package study.querydsl.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
+import static study.querydsl.entity.QTeam.team;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
@@ -28,8 +29,8 @@ public class QuerydslBasicTest {
 	@BeforeEach // 각 테스트 실행 전에 데이터를 넣기 위해 사용
 	public void before() {
 		queryFactory = new JPAQueryFactory(em); // QueryFactory 초기화
-		Team teamA = new Team("TeamA");
-		Team teamB = new Team("TeamB");
+		Team teamA = new Team("teamA");
+		Team teamB = new Team("teamB");
 		em.persist(teamA);
 		em.persist(teamB);
 
@@ -58,9 +59,6 @@ public class QuerydslBasicTest {
 		assertThat(findMember.getUsername()).isEqualTo("member1"); // 이름으로 검증
 	}
 
-	// JPQL을 Querydsl로 바꾸기
-	// JPQL과의 차이_1: 쿼리를 작성할 때 문자열을 사용하지 않고, 자바 코드처럼 쿼리를 작성하기 때문에 컴파일 시점에서 에러를 발견할 수 있다
-	// JPQL과의 차이_2: 쿼리에 파라미터 값을 직접 넣어주지 않아도 자동으로 파라미터 바인딩을 해서 쿼리를 생성한다
 	@Test
 	public void startQuerydsl() {
 		QMember m = new QMember("m"); // m은 Qmember를 구분하는 별칭같은 거지만, 크게 중요하지 않다.
@@ -75,6 +73,9 @@ public class QuerydslBasicTest {
 		assertThat(findMember.getUsername()).isEqualTo("member1");
 	}
 
+	// JPQL을 Querydsl로 바꾸기
+	// JPQL과의 차이_1: 쿼리를 작성할 때 문자열을 사용하지 않고, 자바 코드처럼 쿼리를 작성하기 때문에 컴파일 시점에서 에러를 발견할 수 있다
+	// JPQL과의 차이_2: 쿼리에 파라미터 값을 직접 넣어주지 않아도 자동으로 파라미터 바인딩을 해서 쿼리를 생성한다
 	@Test
 	public void startQuerydsl2() {
 
@@ -204,6 +205,7 @@ public class QuerydslBasicTest {
 	}
 
 	// paging
+
 	@Test
 	public void paging1() {
 		List<Member> result = queryFactory
@@ -218,8 +220,8 @@ public class QuerydslBasicTest {
 			System.out.println("member1 = " + member1);
 		}
 	}
-
 	// paging. 전체 조회가 필요한 경우
+
 	@Test
 	public void paging2() {
 		// fetchResults()를 사용하면 쿼리가 2번 나간다. 카운트 쿼리가 먼저 나가고, 다음으로 content용 쿼리가 나간다.
@@ -235,8 +237,8 @@ public class QuerydslBasicTest {
 		assertThat(queryResults.getOffset()).isEqualTo(1);
 		assertThat(queryResults.getResults().size()).isEqualTo(2); // getResults를 사용하면 해당 페이지에 들어가는 데이터 content를 꺼낼 수 있다. size를 통해 갯수 확인 가능
 	}
-
 	// 집합 함수:
+
 	@Test
 	public void aggregation() {
 		// 집합 함수를 사용하면 결과 값이 Tuple 형태로 조회된다.
@@ -261,6 +263,33 @@ public class QuerydslBasicTest {
 		assertThat(tuple.get(member.age.min())).isEqualTo(10);
 
 		System.out.println("tuple = " + tuple);
+	}
+	/**
+	 * 팀의 이름과 각 팀의 평균 연령을 구해라.
+	 */
+	@Test
+	public void group() throws Exception {
 
+		List<Tuple> result = queryFactory // Tuple로 결과를 받는다
+			.select(
+				team.name, // 팀의 이름
+				member.age.avg() // 각 팀의 멤버 평균 연력
+			)
+			.from(member)
+			.join(member.team, team) // member 엔티티와 연관 관계를 맺고 있는 team과 team 엔티티를 join
+			.groupBy(team.name) // team의 이름으로 grouping
+			.fetch();// List로 조회
+
+		// groupby에 의해 team은 2개가 조회 된다.
+		Tuple teamA = result.get(0);
+		Tuple teamB = result.get(1);
+
+		// Tuple 데이터를 조회할 때는 select에 표기한 방식과 동일하게 get()에 넣어서 사용한다.
+		assertThat(teamA.get(team.name)).isEqualTo("teamA");
+		assertThat(teamA.get(member.age.avg())).isEqualTo(15);
+
+		assertThat(teamB.get(team.name)).isEqualTo("teamB");
+		assertThat(teamB.get(member.age.avg())).isEqualTo(35);
 	}
 }
+
