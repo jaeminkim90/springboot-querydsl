@@ -204,6 +204,23 @@ public class QuerydslBasicTest {
 		assertThat(member6.getUsername()).isEqualTo("member6");
 		assertThat(memberNull.getUsername()).isNull();
 	}
+
+	// paging
+	@Test
+	public void paging1() {
+		List<Member> result = queryFactory
+			.selectFrom(member)
+			.orderBy(member.username.desc())
+			.offset(1) // 시작하는 row를 설정(시작 페이지가 아니다)
+			.limit(2) // 한 화면에 보여줄 데이터의 갯수
+			.fetch();// list를 조회
+
+		assertThat(result.size()).isEqualTo(2);
+		for (Member member1 : result) {
+			System.out.println("member1 = " + member1);
+		}
+
+	}
 }
 
 
