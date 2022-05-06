@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
 
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -233,5 +234,33 @@ public class QuerydslBasicTest {
 		assertThat(queryResults.getLimit()).isEqualTo(2);
 		assertThat(queryResults.getOffset()).isEqualTo(1);
 		assertThat(queryResults.getResults().size()).isEqualTo(2); // getResults를 사용하면 해당 페이지에 들어가는 데이터 content를 꺼낼 수 있다. size를 통해 갯수 확인 가능
+	}
+
+	// 집합 함수:
+	@Test
+	public void aggregation() {
+		// 집합 함수를 사용하면 결과 값이 Tuple 형태로 조회된다.
+		// Tuple은 여러개의 타입이 있을 때 꺼내 올 수 있는 타입이다.
+		// Querydsl은 JPQL이 제공하는 모든 집합 함수를 제공한다.
+		List<Tuple> result = queryFactory
+			.select(
+				member.count(), // 전체 회원의 수
+				member.age.sum(), // 회원 나이의 총합
+				member.age.avg(), // 회원 나이의 평균
+				member.age.max(), // 회원 나이의 최댓값
+				member.age.min() // 회원 나이의 최솟값
+			)
+			.from(member) // 모든 회원에 대해 조회
+			.fetch();
+
+		Tuple tuple = result.get(0); // 조회 결과, 하나의 Tuple 값만 존재한다
+		assertThat(tuple.get(member.count())).isEqualTo(4); // select에 사용한 형태와 동일하게 get을 사용하여 조회할 수 있다
+		assertThat(tuple.get(member.age.sum())).isEqualTo(100);
+		assertThat(tuple.get(member.age.avg())).isEqualTo(25);
+		assertThat(tuple.get(member.age.max())).isEqualTo(40);
+		assertThat(tuple.get(member.age.min())).isEqualTo(10);
+
+		System.out.println("tuple = " + tuple);
+
 	}
 }
