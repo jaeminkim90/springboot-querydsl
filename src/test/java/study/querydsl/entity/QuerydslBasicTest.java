@@ -290,6 +290,10 @@ public class QuerydslBasicTest {
 
 		assertThat(teamB.get(team.name)).isEqualTo("teamB");
 		assertThat(teamB.get(member.age.avg())).isEqualTo(35);
+
+		// having() 예시
+		// .groupBy(item.price) // item의 가격으로 그룹을 묶는다
+		// .having(item.price.gt(1000)) // 가격이 같은 그룹 중 1000이 넘는 것만 조회(gt=greater)
 	}
 }
 
