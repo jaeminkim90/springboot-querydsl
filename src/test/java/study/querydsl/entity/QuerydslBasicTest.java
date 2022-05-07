@@ -300,13 +300,36 @@ public class QuerydslBasicTest {
 	public void join() {
 		List<Member> result = queryFactory
 			.selectFrom(member)
-			.leftJoin(member.team, team) // join(조인 대상, 별칭으로 사용할 Q타입)
+			.join(member.team, team) // join(조인 대상, 별칭으로 사용할 Q타입)
 			.where(team.name.eq("teamA"))
 			.fetch();// fetch는 list를 조회한다
 
 		assertThat(result)
 			.extracting("username") // result에서 username을 가져온다
 			.containsExactly("member1", "member2"); // 가져온 username에 member1과 member2가 존재하는지 확인
+	}
+
+	/**
+	 * 세타 조인: 연관관계가 없는 필드로 조인
+	 * 회원의 이름이 팀 이름과 같은 회원 조회
+	 */
+
+	@Test
+	public void theta_join() throws Exception{
+		em.persist(new Member("teamA"));
+		em.persist(new Member("teamB"));
+		em.persist(new Member("teamC"));
+
+		List<Member> result = queryFactory
+			.select(member)
+			.from(member, team) // from 절에 두 엔티티를 나열한다
+			.where(member.username.eq(team.name)) // 회원의 이름이 팀 이름과 같은 회원 조회. 일명 막조인
+			.fetch();
+
+		// 검증: result(조회 결과)의 내용 중 username이 teamA와 teamB인지 확인
+		assertThat(result)
+			.extracting("username")
+			.containsExactly("teamA", "teamB"); // result의 username이 모두 정확하게 일치하는지 확인
 	}
 }
 
