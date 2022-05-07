@@ -300,7 +300,7 @@ public class QuerydslBasicTest {
 	public void join() {
 		List<Member> result = queryFactory
 			.selectFrom(member)
-			.join(member.team, team) // join(조인 대상, 별칭으로 사용할 Q타입)
+			.leftJoin(member.team, team) // join(조인 대상, 별칭으로 사용할 Q타입)
 			.where(team.name.eq("teamA"))
 			.fetch();// fetch는 list를 조회한다
 
