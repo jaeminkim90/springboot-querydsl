@@ -295,5 +295,18 @@ public class QuerydslBasicTest {
 		// .groupBy(item.price) // item의 가격으로 그룹을 묶는다
 		// .having(item.price.gt(1000)) // 가격이 같은 그룹 중 1000이 넘는 것만 조회(gt=greater)
 	}
+
+	@Test
+	public void join() {
+		List<Member> result = queryFactory
+			.selectFrom(member)
+			.join(member.team, team) // join(조인 대상, 별칭으로 사용할 Q타입)
+			.where(team.name.eq("teamA"))
+			.fetch();// fetch는 list를 조회한다
+
+		assertThat(result)
+			.extracting("username") // result에서 username을 가져온다
+			.containsExactly("member1", "member2"); // 가져온 username에 member1과 member2가 존재하는지 확인
+	}
 }
 
