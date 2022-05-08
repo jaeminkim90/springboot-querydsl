@@ -352,6 +352,7 @@ public class QuerydslBasicTest {
 	/**
 	 * 연관관계가 없는 엔티티 외부 조인
 	 * 회원의 이름이 팀 이름과 같은 대상을 외부 조인
+	 * memo: 연관관계가 없는 엔티티를 조인할 때는 문법상 join()안에 엔티티 하나만 들어간다. 그러면 pk값으로 조인하지 않는다.
 	 */
 	@Test
 	public void join_on_no_relation() throws Exception{
