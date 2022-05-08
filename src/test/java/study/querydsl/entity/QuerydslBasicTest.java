@@ -335,13 +335,14 @@ public class QuerydslBasicTest {
 	/**
 	 *  예) 회원과 팀을 조인하면서, 팀 이름이 teamA인 팀만 조인, 회원은 모두 조회
 	 *  JPQL: select m, t from Membmer m left join m.team t on t.name = 'teamA'
+	 *  Tip: inner join을 사용한다면 where 절을 이용해 필터링을 하는 것과 결과가 같다.
 	 */
 	@Test
 	public void join_on_filtering() {
 		List<Tuple> result = queryFactory
 			.select(member, team)
 			.from(member)
-			.leftJoin(member.team, team).on(team.name.eq("teamA"))
+			.join(member.team, team).on(team.name.eq("teamA"))
 			.fetch();
 		for (Tuple tuple : result) {
 			System.out.println("tuple = " + tuple);
