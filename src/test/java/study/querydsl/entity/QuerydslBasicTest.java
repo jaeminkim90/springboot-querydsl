@@ -392,6 +392,22 @@ public class QuerydslBasicTest {
 		boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
 		assertThat(loaded).as("패치 조인 미적용").isFalse();
 	}
+
+	@Test
+	public void fetchJoinUse() {
+		em.flush();
+		em.clear();
+
+		Member findMember = queryFactory
+			.selectFrom(member)
+			.join(member.team, team).fetchJoin() // 일반 join과 문법 동일하나, fetchJoin이 추가됨.
+			.where(member.username.eq("member1"))
+			.fetchOne();
+
+		// isLoaded()는 파라미터로 들어오는 값이 영속성 컨텍스트에 로딩된 엔티티인지 혹은 아닌지 확인할 수 있다
+		boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
+		assertThat(loaded).as("패치 조인 미적용").isTrue();
+	}
 }
 
 
