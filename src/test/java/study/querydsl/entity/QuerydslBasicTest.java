@@ -9,6 +9,8 @@ import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -372,5 +374,24 @@ public class QuerydslBasicTest {
 			System.out.println("tuple = " + tuple);
 		}
 	}
+
+	@PersistenceUnit // entityManager를 만드는 팩토리 역할
+	EntityManagerFactory emf;
+
+	@Test
+	public void fetchJoinNo() {
+		em.flush();
+		em.clear();
+
+		Member findMember = queryFactory
+			.selectFrom(member)
+			.where(member.username.eq("member1"))
+			.fetchOne();
+
+		// isLoaded()는 파라미터로 들어오는 값이 영속성 컨텍스트에 로딩된 엔티티인지 혹은 아닌지 확인할 수 있다
+		boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
+		assertThat(loaded).as("패치 조인 미적용").isFalse();
+	}
 }
+
 
