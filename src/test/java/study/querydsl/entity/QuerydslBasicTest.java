@@ -6,6 +6,7 @@ import static study.querydsl.entity.QTeam.team;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -407,6 +408,26 @@ public class QuerydslBasicTest {
 		// isLoaded()는 파라미터로 들어오는 값이 영속성 컨텍스트에 로딩된 엔티티인지 혹은 아닌지 확인할 수 있다
 		boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
 		assertThat(loaded).as("패치 조인 미적용").isTrue();
+	}
+
+	/**
+	 * 나이가 가장 많은 회원 조회
+	 */
+	@Test
+	public void subQuery() {
+
+		QMember membersub = new QMember("memberSub"); // alias가 겹치지 않게 QMember 객체를 하나 더 만든다
+
+		List<Member> result = queryFactory
+				.selectFrom(member)
+				.where(member.age.eq( // age.max()를 찾아서 member.age가 일치하는지 확인
+						JPAExpressions.select(membersub.age.max())
+								.from(membersub)
+				))
+				.fetch();
+
+		assertThat(result).extracting("age")
+				.containsExactly(40);
 	}
 }
 
